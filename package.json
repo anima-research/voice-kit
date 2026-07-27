@@ -1,0 +1,23 @@
+{
+  "name": "@animalabs/voice-kit",
+  "version": "0.1.0",
+  "description": "Pluggable STT/TTS provider seam for connectome voice: interfaces + provider adapters (ElevenLabs Scribe/stream-input, AssemblyAI) + audio math + voice-registry types. Surface-agnostic: no Discord, no Portal.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": { "node": ">=20" }
+}
