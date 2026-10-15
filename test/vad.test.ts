@@ -1,6 +1,6 @@
 // EnergyVad: onset, hangover, hot-mic noise rejection — audio-time driven,
 // no wall clock, no network.
-import { describe, test } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EnergyVad, dbfs } from '../src/vad.js';
 
