@@ -51,6 +51,7 @@ Each provider takes its API key in its constructor.
 npm install
 npm run build      # tsc → dist/
 npm test           # bun test
+npm run test:node  # the same tests under Node
 ```
 
 Releases publish from a `v*` tag through GitHub Actions with npm trusted

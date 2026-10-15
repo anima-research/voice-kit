@@ -34,6 +34,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Test on Node
+        run: npm run test:node
+
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest

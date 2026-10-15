@@ -2,7 +2,9 @@
 // docs warn about — double finals under format_turns, replace-not-append turn
 // revisions, end-of-session SpeakerRevision re-emission, and the Terminate
 // handshake (revisions arrive AFTER Terminate; a naive close loses them).
-import { test, expect, afterAll } from 'bun:test';
+import { test, after } from 'node:test';
+import assert from 'node:assert/strict';
+import { assertMatches } from './match.js';
 import { WebSocketServer, type WebSocket as WsSocket } from 'ws';
 import { AssemblyAiSttProvider } from '../src/providers/assemblyai.js';
 import type { SttTranscript } from '../src/types.js';
@@ -11,7 +13,7 @@ const PORT = 8957;
 const wss = new WebSocketServer({ port: PORT });
 let script: (ws: WsSocket) => void = () => {};
 wss.on('connection', (ws) => script(ws));
-afterAll(() => wss.close());
+after(() => wss.close());
 
 function patchedProvider(): AssemblyAiSttProvider {
   const p = new AssemblyAiSttProvider('test-key');
@@ -60,15 +62,15 @@ test('double-final rule + replace semantics + speaker revision after Terminate',
   await new Promise((r) => setTimeout(r, 250));
 
   const t0 = got.filter((t) => t.utteranceId === 't0');
-  expect(t0.length).toBe(3);
-  expect(t0[0]).toMatchObject({ text: 'hello wor', final: false, speaker: 'A' });
-  expect(t0[1]).toMatchObject({ text: 'hello world', final: false }); // unformatted final ≠ final
-  expect(t0[2]).toMatchObject({ text: 'Hello, world.', final: true });
+  assert.equal(t0.length, 3);
+  assertMatches(t0[0], { text: 'hello wor', final: false, speaker: 'A' });
+  assertMatches(t0[1], { text: 'hello world', final: false }); // unformatted final ≠ final
+  assertMatches(t0[2], { text: 'Hello, world.', final: true });
 
   const t1 = got.filter((t) => t.utteranceId === 't1');
-  expect(t1[0]).toMatchObject({ text: 'Second turn.', final: true, speaker: 'A' });
+  assertMatches(t1[0], { text: 'Second turn.', final: true, speaker: 'A' });
   // revision arrived after Terminate: same id, same text, corrected speaker
-  expect(t1[t1.length - 1]).toMatchObject({ text: 'Second turn.', final: true, speaker: 'B' });
+  assertMatches(t1[t1.length - 1], { text: 'Second turn.', final: true, speaker: 'B' });
 });
 
 test('audio is re-buffered to legal binary chunks; UNKNOWN speaker omitted', async () => {
@@ -94,7 +96,7 @@ test('audio is re-buffered to legal binary chunks; UNKNOWN speaker omitted', asy
   session.close();
   await new Promise((r) => setTimeout(r, 250));
 
-  expect(frames[0]).toBe(3200);          // re-buffered up to the chunk size
-  expect(frames[1]).toBe(1800);          // close() flushed the ≥50ms remainder
-  expect(got[0]?.speaker).toBeUndefined(); // UNKNOWN → unattributed
+  assert.equal(frames[0], 3200);          // re-buffered up to the chunk size
+  assert.equal(frames[1], 1800);          // close() flushed the ≥50ms remainder
+  assert.equal(got[0]?.speaker, undefined); // UNKNOWN → unattributed
 });
